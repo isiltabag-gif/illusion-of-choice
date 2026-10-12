@@ -106,7 +106,6 @@ const pdfBase64='JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQ
 <h2>Cevaplarımı öğretmene gönder</h2>
 <p>Mini soruları çözdükten sonra adını yazıp cevaplarını gönder. <a href="illusion-of-choice.pdf" download>PDF özetini indir</a></p>
 <div class="row"><div><label for="stuName">Ad Soyad *</label><input id="stuName" autocomplete="name" required></div>
-<div><label for="stuClass">Sınıf / Şube (isteğe bağlı)</label><input id="stuClass"></div>
 <div><label for="stuEmail">E-posta (isteğe bağlı)</label><input id="stuEmail" type="email" autocomplete="email"></div></div>
 <button id="sendBtn" class="primary" type="button" onclick="sendAnswers()">Cevaplarımı Işıl Tabağ'a gönder</button>
 <div id="sendMsg" role="status" aria-live="polite"></div>
@@ -117,12 +116,12 @@ const KEY='ioc_answers_v1';let rec={};try{rec=JSON.parse(localStorage.getItem(KE
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(rec))}catch(e){}};
 const orig=window.answer;
 window.answer=function(j){const i=index,already=done.has(i);if(!already){const c=cards[i];const r=rec[i]||{attempts:[]};if(r.first===undefined){r.first=j}r.attempts.push(c.options[j]);if(j===c.answer)r.solved=new Date().toISOString();rec[i]=r;save()}return orig.apply(this,arguments)};
-['stuName','stuClass','stuEmail'].forEach(id=>{const el=document.getElementById(id);try{el.value=localStorage.getItem('ioc_'+id)||''}catch(e){}el.addEventListener('input',()=>{try{localStorage.setItem('ioc_'+id,el.value)}catch(e){}})});
+['stuName','stuEmail'].forEach(id=>{const el=document.getElementById(id);try{el.value=localStorage.getItem('ioc_'+id)||''}catch(e){}el.addEventListener('input',()=>{try{localStorage.setItem('ioc_'+id,el.value)}catch(e){}})});
 window.sendAnswers=async function(){
 const msg=document.getElementById('sendMsg'),btn=document.getElementById('sendBtn');
 const name=document.getElementById('stuName').value.trim();
 if(!name){msg.className='err';msg.textContent='Lütfen göndermeden önce adını ve soyadını yaz.';document.getElementById('stuName').focus();return}
-const data={_subject:'Illusion of Choice cevapları - '+name,_template:'table',_captcha:'false','Öğrenci':name,'Sınıf':document.getElementById('stuClass').value.trim()||'-','Öğrenci e-postası':document.getElementById('stuEmail').value.trim()||'-','Gönderim zamanı':new Date().toLocaleString('tr-TR'),'Cevaplanan soru':Object.keys(rec).length+' / '+cards.length,'İlk denemede doğru':cards.filter((c,i)=>rec[i]&&rec[i].first===c.answer).length+' / '+cards.length};
+const data={_subject:'Illusion of Choice cevapları - '+name,_template:'table',_captcha:'false','Öğrenci':name,'Öğrenci e-postası':document.getElementById('stuEmail').value.trim()||'-','Gönderim zamanı':new Date().toLocaleString('tr-TR'),'Cevaplanan soru':Object.keys(rec).length+' / '+cards.length,'İlk denemede doğru':cards.filter((c,i)=>rec[i]&&rec[i].first===c.answer).length+' / '+cards.length};
 cards.forEach((c,i)=>{const r=rec[i];data[(i+1)+'. '+c.question]=r?('İlk cevap: '+c.options[r.first]+' ('+(r.first===c.answer?'Doğru':'Yanlış')+')'+(r.attempts.length>1?' | Denemeler: '+r.attempts.join(' → '):'')+(r.solved?' | Sonunda doğru':'')):'Cevaplanmadı'});
 try{localStorage.setItem('ioc_last_submission',JSON.stringify(data))}catch(e){}
 btn.disabled=true;msg.className='';msg.textContent='Gönderiliyor…';
